@@ -1,12 +1,15 @@
 import streamlit as st
 import pandas as pd
-import joblib
 from pathlib import Path
+import joblib
 
-# Load model
-model_path = Path("/Users/pravinkumar/python/test/model.pkl")
+# Get the folder where deploy_model.py is located
+BASE_DIR = Path(__file__).resolve().parent
+
+# Load model from the same folder
+model_path = BASE_DIR / "model.pkl"
+
 model = joblib.load(model_path)
-
 # App title
 st.title("🤖 Fraud Detection App")
 st.write("Enter transaction details below.")
