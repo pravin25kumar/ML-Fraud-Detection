@@ -51,6 +51,26 @@ if image_path.exists():
         .stApp p {{
             color: #243B53;
         }}
+        
+        .stApp p {
+            color: #243B53;
+        }
+
+        /* Predict button */
+        .stButton > button {
+            background-color: #1976D2;
+            color: #FFFFFF !important;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 600;
+        }
+
+        /* Button hover effect */
+        .stButton > button:hover {
+            background-color: #1259A7;
+            color: #FFFFFF !important;
+        }
 
         </style>
     """, unsafe_allow_html=True)
