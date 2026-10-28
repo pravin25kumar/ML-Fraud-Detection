@@ -21,6 +21,7 @@ st.set_page_config(
     layout="wide"
 )
 
+
 # -------------------------
 # 3. Background and styling
 # -------------------------
@@ -43,39 +44,92 @@ if image_path.exists():
             background-attachment: fixed;
         }}
 
+        /* Dark title */
         h1 {{
             color: #102A43 !important;
             font-weight: 800 !important;
         }}
 
+        /* Dark subtitle */
         .stApp p {{
-            color: #243B53;
+            color: #243B53 !important;
         }}
-        
-        .stApp p {
-            color: #243B53;
-        }
 
-        /* Predict button */
-        .stButton > button {
-            background-color: #1976D2;
+        /* Blue Predict button with white text */
+        .stButton > button {{
+            background-color: #1976D2 !important;
             color: #FFFFFF !important;
-            border: none;
+            border: none !important;
             border-radius: 8px;
             padding: 10px 24px;
             font-weight: 600;
-        }
+        }}
 
-        /* Button hover effect */
-        .stButton > button:hover {
-            background-color: #1259A7;
+        /* Hover effect */
+        .stButton > button:hover {{
+            background-color: #1259A7 !important;
             color: #FFFFFF !important;
-        }
-
+        }}
         </style>
     """, unsafe_allow_html=True)
+
 else:
     st.warning("background.jpg not found. Check your project folder.")
+
+# -------------------------
+# 3. Background and styling
+# -------------------------
+if image_path.exists():
+    image_base64 = base64.b64encode(
+        image_path.read_bytes()
+    ).decode()
+
+    st.markdown(f"""
+        <style>
+        .stApp {{
+            background-image:
+                linear-gradient(
+                    rgba(234, 244, 255, 0.78),
+                    rgba(214, 233, 255, 0.78)
+                ),
+                url("data:image/jpeg;base64,{image_base64}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
+
+        /* Dark title */
+        h1 {{
+            color: #102A43 !important;
+            font-weight: 800 !important;
+        }}
+
+        /* Dark subtitle */
+        .stApp p {{
+            color: #243B53 !important;
+        }}
+
+        /* Blue Predict button with white text */
+        .stButton > button {{
+            background-color: #1976D2 !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 600;
+        }}
+
+        /* Hover effect */
+        .stButton > button:hover {{
+            background-color: #1259A7 !important;
+            color: #FFFFFF !important;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+
+else:
+    st.warning("background.jpg not found. Check your project folder.")
+
 
 # -------------------------
 # 4. Load model
