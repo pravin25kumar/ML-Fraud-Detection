@@ -1,52 +1,80 @@
+
 import streamlit as st
 import pandas as pd
 from pathlib import Path
 import joblib
+import base64
 
-image_path = Path(__file__).parent / "background.jpg"
-
-
-st.markdown(f"""
-    <style>
-    .stApp {{
-        background-image:
-            linear-gradient(
-                rgba(234, 244, 255, 0.78),
-                rgba(214, 233, 255, 0.78)
-            ),
-            url("data:image/jpeg;base64,{image_base64}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
-
-    /* Dark title */
-    h1 {{
-        color: #102A43 !important;
-        font-weight: 800 !important;
-    }}
-
-    /* Dark subtitle and other paragraph text */
-    .stApp p {{
-        color: #243B53 !important;
-    }}
-    </style>
-""", unsafe_allow_html=True)
-
-
-
-# Get the folder where deploy_model.py is located
+# -------------------------
+# 1. File paths
+# -------------------------
 BASE_DIR = Path(__file__).resolve().parent
-
-# Load model from the same folder
+image_path = BASE_DIR / "background.jpg"
 model_path = BASE_DIR / "model.pkl"
 
-model = joblib.load(model_path)
-# App title
+# -------------------------
+# 2. Page configuration
+# -------------------------
+st.set_page_config(
+    page_title="Fraud Detection App",
+    page_icon="🤖",
+    layout="wide"
+)
+
+# -------------------------
+# 3. Background and styling
+# -------------------------
+if image_path.exists():
+    image_base64 = base64.b64encode(
+        image_path.read_bytes()
+    ).decode()
+
+    st.markdown(f"""
+        <style>
+        .stApp {{
+            background-image:
+                linear-gradient(
+                    rgba(234, 244, 255, 0.78),
+                    rgba(214, 233, 255, 0.78)
+                ),
+                url("data:image/jpeg;base64,{image_base64}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
+
+        h1 {{
+            color: #102A43 !important;
+            font-weight: 800 !important;
+        }}
+
+        .stApp p {{
+            color: #243B53;
+        }}
+
+        </style>
+    """, unsafe_allow_html=True)
+else:
+    st.warning("background.jpg not found. Check your project folder.")
+
+# -------------------------
+# 4. Load model
+# -------------------------
+try:
+    model = joblib.load(model_path)
+except Exception as e:
+    st.error(f"Could not load model: {e}")
+    st.stop()
+
+# -------------------------
+# 5. App title
+# -------------------------
 st.title("🤖 Fraud Detection App")
 st.write("Enter transaction details below.")
 
-# User inputs
+# -------------------------
+# 6. User inputs
+# -------------------------
 step = st.number_input("Step", min_value=0, value=1)
 
 transaction_type = st.selectbox(
@@ -54,13 +82,39 @@ transaction_type = st.selectbox(
     ["CASH_IN", "CASH_OUT", "DEBIT", "PAYMENT", "TRANSFER"]
 )
 
-amount = st.number_input("Amount", min_value=0.0, value=1000.0)
-old_balance = st.number_input("Old Balance (Origin)", min_value=0.0, value=5000.0)
-new_balance = st.number_input("New Balance (Origin)", min_value=0.0, value=4000.0)
-old_dest = st.number_input("Old Balance (Destination)", min_value=0.0, value=2000.0)
-new_dest = st.number_input("New Balance (Destination)", min_value=0.0, value=3000.0)
+amount = st.number_input(
+    "Transaction Amount",
+    min_value=0.0,
+    value=1000.0
+)
 
-# Prediction
+old_balance = st.number_input(
+    "Old Balance (Origin)",
+    min_value=0.0,
+    value=5000.0
+)
+
+new_balance = st.number_input(
+    "New Balance (Origin)",
+    min_value=0.0,
+    value=4000.0
+)
+
+old_dest = st.number_input(
+    "Old Balance (Destination)",
+    min_value=0.0,
+    value=2000.0
+)
+
+new_dest = st.number_input(
+    "New Balance (Destination)",
+    min_value=0.0,
+    value=3000.0
+)
+
+# -------------------------
+# 7. Prediction
+# -------------------------
 if st.button("Predict"):
 
     data = pd.DataFrame([{
@@ -74,17 +128,36 @@ if st.button("Predict"):
     }])
 
     # One-hot encoding
-    data = pd.get_dummies(data, columns=["type"], dtype=int)
+    data = pd.get_dummies(
+        data,
+        columns=["type"],
+        dtype=int
+    )
 
-    # Match training features
+    # Match model training features
+    if not hasattr(model, "feature_names_in_"):
+        st.error(
+            "Model feature names are missing. "
+            "Check how the model was trained."
+        )
+        st.stop()
+
     data = data.reindex(
         columns=model.feature_names_in_,
         fill_value=0
     )
 
-    prediction = model.predict(data)[0]
+    try:
+        prediction = model.predict(data)[0]
 
-    if prediction == 1:
-        st.error("⚠️ Potentially Fraudulent Transaction")
-    else:
-        st.success("✅ Non-Fraudulent Transaction")
+        if prediction == 1:
+            st.error(
+                "⚠️ Potentially Fraudulent Transaction"
+            )
+        else:
+            st.success(
+                "✅ Non-Fraudulent Transaction"
+            )
+
+    except Exception as e:
+        st.error(f"Prediction failed: {e}")
