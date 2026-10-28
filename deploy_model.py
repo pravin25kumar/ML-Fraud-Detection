@@ -3,6 +3,34 @@ import pandas as pd
 from pathlib import Path
 import joblib
 
+image_path = Path(__file__).parent / "background.jpg"
+
+if image_path.exists():
+    import base64
+
+    image_base64 = base64.b64encode(
+        image_path.read_bytes()
+    ).decode()
+
+    st.markdown(f"""
+        <style>
+        .stApp {{
+            background-image:
+                linear-gradient(
+                    rgba(234, 244, 255, 0.78),
+                    rgba(214, 233, 255, 0.78)
+                ),
+                url("data:image/jpeg;base64,{image_base64}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
+        </style>
+    """, unsafe_allow_html=True)
+else:
+    st.warning("Background image not found.")
+
+
 # Get the folder where deploy_model.py is located
 BASE_DIR = Path(__file__).resolve().parent
 
